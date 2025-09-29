@@ -35,24 +35,33 @@ def check_zazzle_card(card_data):
 
     start_time = time.time()
     cookies = {
-        'us': '455D5DD2-84ED-46E3-9B7A-A24835AB1EF2',
-        'NSC_xxx02': '4afda3da32a038d73ac067db9e819d936044d49ffca5b6bd3aacb7aa312309cfd675fe7a',
-        'pxcts': '00117a66-9d52-11f0-961a-f782b8c69ddc',
-        '_pxvid': 'fd710635-9d51-11f0-aacf-0f518693e6f5',
-        '_ga': 'GA1.1.1594204749.1759163596',
-        'tp': 'Noremarketing%7c09%2f29%2f2025%2008%3a33%3a47%20-08%3a00',
-        'NSC_eao10': '1116a3db6eff87ef52911e5fa6dddf7041de3f995f2f009e47aad94ed535ef250b69654c',
-        '_pxhd': '6kIaeiFCnx/TXZun-i6dGxXfMRbEYlenh1X-I/ZbMUuds8hPgwASSVTnrG75BxgOxUfD4SjfpoCUo2lf3ob02Q==:Ajj00MGH8QSWQxiJCqicitvuCRTHsvUZPGQ-V52wSfotGZcMpeQB2MjxiG23PenU61N74rZw0cx-tUDh/EY3tA0ctj6fH0/ieMBT7zWYw6c=',
-        'zm': 'AQABAAAAshwAABR15w02Sdqwdcg0ZYQ8cdY_jZv7hb-8pPyx0W2t0auTAWuqwkSpFzZbcQg7DQ66-NXMxn6EXoEpGT7lca9xXOD1GUWmKgOXBBRepDIsunj6SvqSXFf6RXUF1NDMTJmn6crjB2dmXmKaW1BwiwKrO4FBAlNR2tNhUUjKQa5yYNkm39PCvBf96yb_AlmT5ECuXb3gLI9qYAjw4dWkDpZnYc_qOaQwe6MvUiyq_b5zvSMuxRuElmg',
-        'zs': '92FF58E1-A68C-4707-A7FB-CEC255F0D7A0%7c238946670744020730%7c13403646685%7cAQABAAAAshwAABT3E1oI_ZTrebHkyC7h6Efa5zDkB6phw8rjdSCYSRY_d8RKayep6Q5m-oK9_E-nCpCqL5ieQ-THllEGJnDNGD9S7ShWTw%7c',
+        'us': '54EE8B28-154B-4CBF-B150-07ABD8F3F1E8',
+        'NSC_xxx02': '7ce2a3d9126dfe7894b40e7bd53528d448b2bad1a3cb938ce3ffb57f3b7b2dcd763a4628',
+        '_pxhd': 'jv3nZ9W4mm8VU8hqeZxcMi8D01XyKgRd/s47FK8KLTJ5Z4PQNqhY9cmZVhPsrYAJEIT5ylcImdZJIcfAeiN0kQ==:AxFEPn3qNmbUNqhgR0mHVIxD/I1jo9i0gZdNGcPCqfE38dQOT9As56hVx2/PfAhyTxCMVsamOFLtG2oKtveES9tLHOVM2ar6ZPD0xy0Kc8M=',
+        'pxcts': '7c61e1a0-9d73-11f0-9915-2c2094c4f8f8',
+        '_pxvid': '79b1a96f-9d73-11f0-bbab-f7f84618c166',
+        '_ga': 'GA1.1.512587246.1759177979',
+        'tp': 'Remarketing%7c09%2f29%2f2025%2012%3a33%3a07%20-08%3a00',
+        '_gcl_au': '1.1.1204920247.1759177986',
+        'bx': '',
+        'NSC_eao10': '68bfa3fe80ba1c2e70bbf4f45ca17ee10fc7619c122d1ada560cb7500c064cccfe13fbbb',
+        'pmsh': 'ba626a8e-c0be-4f84-a309-86c0f7fbd348%7c63895301940%7c0xd9f88de04aedd5ec7870e4c61b99456a%7c0xd9f88de04aedd5ec7870e4c61b99456a',
+        '_uetsid': '908143d09d7311f0a36a79a3deea8825',
+        '_uetvid': '908154209d7311f0b9db671f26b7903e',
+        '__attentive_id': 'af35a89704cd4015bb28887fe5de94b4',
+        '__attentive_session_id': '7a3899ea62e1491a99599fd74cb81491',
+        '_attn_': 'eyJ1Ijoie1wiY29cIjoxNzU5MTc4MDIzODE0LFwidW9cIjoxNzU5MTc4MDIzODE0LFwibWFcIjoyMTkwMCxcImluXCI6ZmFsc2UsXCJ2YWxcIjpcImFmMzVhODk3MDRjZDQwMTViYjI4ODg3ZmU1ZGU5NGI0XCJ9In0=',
+        '__attentive_cco': '1759178023815',
+        '__attentive_ss_referrer': 'https://www.zazzle.co.uk/modern_family_photo_joyful_merry_blessed_travel_mug-168512753122764574',
+        '__attentive_dv': '1',
+        'zm': 'AQABAAAAshwAABRd03Zmsy6UXHRyTNT3RjUmjdEWEd0nwDEGKstmML6UClTgc76WE4ZSdeIh3wO5LqJPUAZBwDUcis1HqG73MvtQJNtSsVWKhWf6yVOpXW2U7Z8WquvfHnDPmFz_K5nJYCqS-wII5Pa1mQzxedX6_cKsidDmce7T7vpXtd4YH0jfcdD8k7xvZ54lI1tmhWU1PWvQ6J28VbKWZY7m0Vx-cPau2XqqqbaUJtjkCZ_t6xnRgNugMVE',
+        'zs': 'BA626A8E-C0BE-4F84-A309-86C0F7FBD348%7c238924106227983797%7c13403651675%7cAQABAAAAshwAABS4MnFb96YVXiNAlgd_564lxdXLEMQiXr87V5tM30Kjt4qeDdR93dxrn2porsfwfh-TAKaVnsbt5nW0SPdrPHYc6P1Mog%7c',
         'general_maturity': '2',
-        'pmsh': '92ff58e1-a68c-4707-a7fb-cec255f0d7a0%7c63895301940%7c0xd9f88de04aedd5ec7870e4c61b99456a%7c0xd9f88de04aedd5ec7870e4c61b99456a',
-        'bx': 'zlng%3den%26zlng_x%3d134074944000000000',
-        'bs': 'pis%3d19%26zshopurl%3dz%2fc%2ftshirts',
-        '_px2': 'eyJ1IjoiNDczNzk1MzAtOWQ2OC0xMWYwLWIwMzUtZTU5YTFhODI0YTc0IiwidiI6ImZkNzEwNjM1LTlkNTEtMTFmMC1hYWNmLTBmNTE4NjkzZTZmNSIsInQiOjE3NTkxNzM0Njc4NzcsImgiOiIxNWM2ZDZmMTRkMTIyODdjZGFiNTMxY2E3OWQyMTJiMzE1OWMxYTU3YjZjM2ExNTZmMjZkOThjZjAxZTAzNWFhIn0=',
-        '_ga_FMN87GXWKG': 'GS2.1.s1759172979$o3$g1$t1759173174$j7$l0$h0',
+        '__attentive_pv': '3',
+        'bs': 'pis%3d9%26zshopurl%3dz%2fc%2ftravel%20mugs',
+        '_px2': 'eyJ1IjoiYjc5MDY5YTAtOWQ3My0xMWYwLWE3NjMtNGY4MmE1MjU2YmYxIiwidiI6Ijc5YjFhOTZmLTlkNzMtMTFmMC1iYmFiLWY3Zjg0NjE4YzE2NiIsInQiOjE3NTkxNzgzODA4MDYsImgiOiIxYmUxZjgxYmRhMjlkNzY1ZDM5MmY4YTg5OTk4OWRkODA1ZDUxMDI4MTE5MzdhYTRlZmZiY2U1NWRkODg3ZjVmIn0=',
+        '_ga_FMN87GXWKG': 'GS2.1.s1759177979$o1$g1$t1759178089$j45$l0$h0$dH1MHnYSSKbJ7btZgb_glpp-Dpkhb5padPw',
     }
-
     headers = {
         'accept': 'application/json',
         'accept-language': 'en-MM,en;q=0.9,ar-MM;q=0.8,ar;q=0.7,en-GB;q=0.6,en-US;q=0.5',
@@ -60,7 +69,7 @@ def check_zazzle_card(card_data):
         'origin': 'https://www.zazzle.co.uk',
         'referer': 'https://www.zazzle.co.uk/co/summary?paymentIntent=other',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-        'x-csrf-token': 'a6de68647a67cb5e',
+        'x-csrf-token': '3fa481bc12530ae8',
     }
 
     # Step 1: Add payment method
@@ -219,7 +228,7 @@ def check_zazzle_card(card_data):
             'issuerDeviceDataCollectionTimeElapsed': 2273,
             'issuerDeviceDataCollectionResult': True,
         },
-                'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNTk1NjQsImp0aSI6IjEwMjg5NzZlLTY5ZTktNDk0Ni1hZjgzLTEzMWJlZGM5YTI5ZiIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdYdlVmOU9jWkpXd2tGY0FQVCJ9fQ.qVB9lCCvSBTwUzIKCGf8g1__8KyliyBDcJ1Uyo9IpbMWvW8R8opgzBukQYkBX3y-zB3ek_p3WiqwSddVBFCLtw',
+                'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNjQ0NzcsImp0aSI6ImNhMTM2ZWUyLWQyZWItNDRhMC05YTk4LTdkNWM1YjJjMjVlOSIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdY',
         'braintreeLibraryVersion': 'braintree/web/3.88.4',
         '_meta': {
             'merchantAppId': 'www.zazzle.co.uk',
