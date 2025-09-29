@@ -34,24 +34,23 @@ def check_zazzle_card(card_data):
         }
 
     start_time = time.time()
-
     cookies = {
-        'bx': 'zlng%3den%26zlng_x%3d134074944000000000',
         'us': '455D5DD2-84ED-46E3-9B7A-A24835AB1EF2',
         'NSC_xxx02': '4afda3da32a038d73ac067db9e819d936044d49ffca5b6bd3aacb7aa312309cfd675fe7a',
-        '_pxhd': 'ilZUdwo4tK1cjZHG0YJsxa361jLW3N8uv4Lqoiiy2qw5UJysNt72xo6r8IoMcXdqnQarjB-2tj/frxOCWyfxag==:c6HgE1OhQh05xtG4SEWC6Eo5onzyZO6G0c7Gmnu5dGwMHM4/F5jXTQ39uptpswjW2lOhKepFvl5IA4KCRPd4zAIlhXnjUDQOyvNZSaIoLzE=',
         'pxcts': '00117a66-9d52-11f0-961a-f782b8c69ddc',
         '_pxvid': 'fd710635-9d51-11f0-aacf-0f518693e6f5',
         '_ga': 'GA1.1.1594204749.1759163596',
         'tp': 'Noremarketing%7c09%2f29%2f2025%2008%3a33%3a47%20-08%3a00',
         'NSC_eao10': '1116a3db6eff87ef52911e5fa6dddf7041de3f995f2f009e47aad94ed535ef250b69654c',
-        'pmsh': 'cbc92a4f-dd8a-46d7-a937-d273bcf886ca%7c63895301940%7c0xd9f88de04aedd5ec7870e4c61b99456a%7c0xd9f88de04aedd5ec7870e4c61b99456a',
+        '_pxhd': '6kIaeiFCnx/TXZun-i6dGxXfMRbEYlenh1X-I/ZbMUuds8hPgwASSVTnrG75BxgOxUfD4SjfpoCUo2lf3ob02Q==:Ajj00MGH8QSWQxiJCqicitvuCRTHsvUZPGQ-V52wSfotGZcMpeQB2MjxiG23PenU61N74rZw0cx-tUDh/EY3tA0ctj6fH0/ieMBT7zWYw6c=',
+        'zm': 'AQABAAAAshwAABR15w02Sdqwdcg0ZYQ8cdY_jZv7hb-8pPyx0W2t0auTAWuqwkSpFzZbcQg7DQ66-NXMxn6EXoEpGT7lca9xXOD1GUWmKgOXBBRepDIsunj6SvqSXFf6RXUF1NDMTJmn6crjB2dmXmKaW1BwiwKrO4FBAlNR2tNhUUjKQa5yYNkm39PCvBf96yb_AlmT5ECuXb3gLI9qYAjw4dWkDpZnYc_qOaQwe6MvUiyq_b5zvSMuxRuElmg',
+        'zs': '92FF58E1-A68C-4707-A7FB-CEC255F0D7A0%7c238946670744020730%7c13403646685%7cAQABAAAAshwAABT3E1oI_ZTrebHkyC7h6Efa5zDkB6phw8rjdSCYSRY_d8RKayep6Q5m-oK9_E-nCpCqL5ieQ-THllEGJnDNGD9S7ShWTw%7c',
         'general_maturity': '2',
-        'bs': 'pis%3d8%26zshopurl%3dz%2fholiday%20socks',
-        '_ga_FMN87GXWKG': 'GS2.1.s1759163595$o1$g1$t1759163736$j46$l0$h0$dc-HVIzRt-2_olIMzOc_JvkoJbA5cUtP3yg',
-        'zm': 'AQABAAAAshwAABTBRdLyUZ0QSxPenQdu9BwpLXnhifkIzU07MbThpt8y4oIah5SqJkDSc9NG22a0gskyOnh3HLhje7sco9SG6lf7eDpxWNbDPqJDUyF5Yff5qRhmwMb3SuEHzG22jLMGU3d4HpIw7RQ10R4LZmsweL4mxzN8q4xXafmSN9kRrTvSDaqHJ7M_j37qPYgnmejd2ya1AAMRHIRtM6oQbr1GYAmr3gs7njnrZBwCY1jnIe3UyeDXO1Q',
-        'zs': 'CBC92A4F-DD8A-46D7-A937-D273BCF886CA%7c238742177681285323%7c13403637473%7cAQABAAAAshwAABR2f0OAvWIMx5Ru9lSwo4ExxftrAj-abLrK98bgFnGpYI__WBhew2w2jfN3JvHYttECmHk8L23tlikRqbemgGBBIHrDUA%7c',
-        '_px2': 'eyJ1IjoiMzYwYTI5MDAtOWQ1Mi0xMWYwLWEzNjctYmRhNGEzOWIxYTUwIiwidiI6ImZkNzEwNjM1LTlkNTEtMTFmMC1hYWNmLTBmNTE4NjkzZTZmNSIsInQiOjE3NTkxNjQyMzEzMTksImgiOiJiMmIxOTBiOTA3MWVkZTU4YWNhNWE1OWEzZTE2ZDM2ZTViYTI2NWRjOTVjZTA2ZWZmZDdkMDhkYTY0NDgzMDEwIn0=',
+        'pmsh': '92ff58e1-a68c-4707-a7fb-cec255f0d7a0%7c63895301940%7c0xd9f88de04aedd5ec7870e4c61b99456a%7c0xd9f88de04aedd5ec7870e4c61b99456a',
+        'bx': 'zlng%3den%26zlng_x%3d134074944000000000',
+        'bs': 'pis%3d19%26zshopurl%3dz%2fc%2ftshirts',
+        '_px2': 'eyJ1IjoiNDczNzk1MzAtOWQ2OC0xMWYwLWIwMzUtZTU5YTFhODI0YTc0IiwidiI6ImZkNzEwNjM1LTlkNTEtMTFmMC1hYWNmLTBmNTE4NjkzZTZmNSIsInQiOjE3NTkxNzM0Njc4NzcsImgiOiIxNWM2ZDZmMTRkMTIyODdjZGFiNTMxY2E3OWQyMTJiMzE1OWMxYTU3YjZjM2ExNTZmMjZkOThjZjAxZTAzNWFhIn0=',
+        '_ga_FMN87GXWKG': 'GS2.1.s1759172979$o3$g1$t1759173174$j7$l0$h0',
     }
 
     headers = {
@@ -61,7 +60,7 @@ def check_zazzle_card(card_data):
         'origin': 'https://www.zazzle.co.uk',
         'referer': 'https://www.zazzle.co.uk/co/summary?paymentIntent=other',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-        'x-csrf-token': '5b18c98bbdce3a21',
+        'x-csrf-token': 'a6de68647a67cb5e',
     }
 
     # Step 1: Add payment method
@@ -220,7 +219,7 @@ def check_zazzle_card(card_data):
             'issuerDeviceDataCollectionTimeElapsed': 2273,
             'issuerDeviceDataCollectionResult': True,
         },
-                'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNTAwODcsImp0aSI6IjJmOTg1MmUxLWNhY2MtNGVlNS1hM2QzLWRlZGVkMjEzMmRmOCIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdYdlVmOU9jWkpXd2tGY0FQVCJ9fQ.PODMiZ2pdIasI2nGKfgo1bSEOOiiFEVz5dArfihngzMEsUiapUIxAJfxZdW8WL8mg_LwcqBppw0cFGL2C_gk_g',
+                'authorizationFingerprint': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjIwMTgwNDI2MTYtcHJvZHVjdGlvbiIsImlzcyI6Imh0dHBzOi8vYXBpLmJyYWludHJlZWdhdGV3YXkuY29tIn0.eyJleHAiOjE3NTkyNTk1NjQsImp0aSI6IjEwMjg5NzZlLTY5ZTktNDk0Ni1hZjgzLTEzMWJlZGM5YTI5ZiIsInN1YiI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJpc3MiOiJodHRwczovL2FwaS5icmFpbnRyZWVnYXRld2F5LmNvbSIsIm1lcmNoYW50Ijp7InB1YmxpY19pZCI6Ijg1d2hiN3kyaDZxOGNuM2oiLCJ2ZXJpZnlfY2FyZF9ieV9kZWZhdWx0IjpmYWxzZSwidmVyaWZ5X3dhbGxldF9ieV9kZWZhdWx0IjpmYWxzZX0sInJpZ2h0cyI6WyJtYW5hZ2VfdmF1bHQiXSwic2NvcGUiOlsiQnJhaW50cmVlOlZhdWx0IiwiQnJhaW50cmVlOkNsaWVudFNESyJdLCJvcHRpb25zIjp7Im1lcmNoYW50X2FjY291bnRfaWQiOiJ6YXp6bGVpcmVsYW5kR0JQIiwicGF5cGFsX2FjY291bnRfbnVtYmVyIjoiMTcyMTM4NTcwNDgxMTcwMjk4MCIsInBheXBhbF9jbGllbnRfaWQiOiJBZmZxdlBKQTM4ZnR6MXVlbE44alNUTHFtd0dHZDVOdlNkeUhabVV5Mml5UXoxMnBPLW9oOFI1RUhBcnpOSzdYdlVmOU9jWkpXd2tGY0FQVCJ9fQ.qVB9lCCvSBTwUzIKCGf8g1__8KyliyBDcJ1Uyo9IpbMWvW8R8opgzBukQYkBX3y-zB3ek_p3WiqwSddVBFCLtw',
         'braintreeLibraryVersion': 'braintree/web/3.88.4',
         '_meta': {
             'merchantAppId': 'www.zazzle.co.uk',
@@ -229,7 +228,7 @@ def check_zazzle_card(card_data):
             'source': 'client',
             'integration': 'custom',
             'integrationType': 'custom',
-            'sessionId': '18bfca41-5e3e-4b07-bffc-6225788ae790',
+            'sessionId': '82b36321-23fd-4ff6-a228-04dc0a64c328',
         },
     }
 
