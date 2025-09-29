@@ -352,8 +352,6 @@ def start_message(message):
 def handle_document(message):
     user_id = message.from_user.id
 
-    if user_id != admin_id:
-        return bot.reply_to(message, "⛔ Access Denied! This bot is for authorized users only.")
 
     try:
         file_info = bot.get_file(message.document.file_id)
@@ -587,9 +585,7 @@ def handle_text(message):
     
     # التحقق من صيغة البطاقة المباشرة
     if '|' in text and len(text.split('|')) == 4:
-        if user_id != admin_id:
-            return bot.reply_to(message, "⛔ Access Denied! This bot is for authorized users only.")
-        
+
         user_combos[user_id] = [text]
         
         keyboard = types.InlineKeyboardMarkup(row_width=2)
