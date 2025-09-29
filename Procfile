@@ -1,1 +1,1 @@
-worker: python pass.py
+worker: python Paseed.py
