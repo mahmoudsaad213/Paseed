@@ -12,12 +12,6 @@ import html
 import threading
 import json
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 TOKEN = "8334507568:AAHp9fsFTOigfWKGBnpiThKqrDast5y-4cU" 
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 admin_id = 5895491379
@@ -641,12 +635,7 @@ def start_bot_with_retries():
                 print("❌ All connection attempts failed. Please try again later.")
 
 if __name__ == "__main__":
-    logger.info("Starting bot on Railway...")
-    try:
-        start_bot_with_retries()
-    except KeyboardInterrupt:
-        logger.info("Bot stopped by user")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Fatal error: {e}")
-        sys.exit(1)
+    print("=" * 50)
+    print("🚀 Starting Checker Bot...")
+    print("=" * 50)
+    start_bot_with_retries()
