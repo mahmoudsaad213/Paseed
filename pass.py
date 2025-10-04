@@ -186,15 +186,6 @@ class CardChecker:
                 'execution_time': round(time.time() - start_time, 2)
             }
 
-async def check_cards_batch(checker: CardChecker, cards: list, batch_size: int = 20):
-    """فحص مجموعة من البطاقات بشكل متزامن"""
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for card in cards:
-            tasks.append(checker.check_card(card, session))
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        return results
-
 def get_bin_info(bin_code):
     """الحصول على معلومات BIN"""
     try:
@@ -227,15 +218,13 @@ def start_message(message):
     
     welcome_text = f"""<b>🎉 Welcome {username}!
 
-🔥 ITS Connect Card Checker Bot 🔥
+🔥 Card Checker Bot 🔥
 ━━━━━━━━━━━━━━━━━━━
-⚡ Ultra Fast Multi-Threading
+✅ Fast & Accurate Checking
 📊 Real-time Results
 🔒 Secure Processing
 
 📤 Send your combo file to start checking!
-━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, welcome_text, parse_mode="HTML")
@@ -264,7 +253,6 @@ def handle_document(message):
             text=f"""<b>✅ File Uploaded Successfully!
 ━━━━━━━━━━━━━━━━━━━
 💳 Total Cards: {cc_count}
-🔥 Gateway: ITS Connect
 ⚡ Status: Ready
 
 Click below to start checking:
@@ -280,7 +268,6 @@ def menu_callback(call):
     user_id = call.from_user.id
 
     def run_checker():
-        gate = "ITS Connect"
         stop_key = f"{user_id}_ITS"
         three_d = live = declined = error = checked = 0
         start_all = time.time()
@@ -288,7 +275,7 @@ def menu_callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="⏳ Initializing ultra-fast checker..."
+            text="⏳ Initializing checker..."
         )
 
         try:
@@ -305,39 +292,32 @@ def menu_callback(call):
             
             checker = CardChecker()
             
-            # فحص بدفعات من 20 بطاقة في نفس الوقت
-            batch_size = 20
-            for i in range(0, total, batch_size):
+            # فحص كرت كرت (واحد واحد)
+            for cc in cards:
                 if stopuser.get(stop_key, {}).get('status') == 'stop':
                     break
                 
-                # أخذ الدفعة الحالية
-                batch = cards[i:min(i + batch_size, total)]
+                # فحص البطاقة
+                async def check_single():
+                    async with aiohttp.ClientSession() as session:
+                        return await checker.check_card(cc, session)
                 
-                # فحص الدفعة
-                results = loop.run_until_complete(check_cards_batch(checker, batch, batch_size))
+                result = loop.run_until_complete(check_single())
+                checked += 1
                 
-                # معالجة النتائج
-                for j, result in enumerate(results):
-                    if isinstance(result, Exception):
-                        result = {
-                            'status': 'error',
-                            'message': 'Exception occurred',
-                            'execution_time': 0
-                        }
-                    
-                    card_index = i + j
-                    cc = cards[card_index]
-                    checked += 1
-                    
-                    escaped = html.escape(cc.strip())
-                    bin_code = cc.strip().split("|")[0][:6]
-                    bin_info = get_bin_info(bin_code)
-                    
-                    # تصنيف النتائج
-                    if result['status'] == '3d':
-                        three_d += 1
-                        msg = f"""<b>🔐 3D SECURE CARD
+                escaped = html.escape(cc.strip())
+                bin_code = cc.strip().split("|")[0][:6]
+                bin_info = get_bin_info(bin_code)
+                
+                # تصنيف النتائج
+                if result['status'] == '3d':
+                    three_d += 1
+                    # لا يتم إرسال رسالة - يظهر فقط في Dashboard
+                
+                elif result['status'] == 'live':
+                    live += 1
+                    # إرسال رسالة Live فقط
+                    msg = f"""<b>✅ LIVE CARD
 
 ━━━━━━━━━━━━━━━━━━━
 💳 Card: <code>{escaped}</code>
@@ -349,36 +329,18 @@ def menu_callback(call):
 🏦 Bank: {bin_info['bank']}
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 By: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
-                        bot.send_message(user_id, msg, parse_mode="HTML")
-                    
-                    elif result['status'] == 'live':
-                        live += 1
-                        msg = f"""<b>✅ LIVE CARD
-
-━━━━━━━━━━━━━━━━━━━
-💳 Card: <code>{escaped}</code>
-━━━━━━━━━━━━━━━━━━━
-📊 Response: {result['message']}
-🏦 BIN: <code>{bin_code}</code>
-💰 Type: {bin_info['type']}
-🏢 Brand: {bin_info['brand']}
-🏦 Bank: {bin_info['bank']}
-🌍 Country: {bin_info['country']} {bin_info['emoji']}
-⏱ Time: {result['execution_time']} sec
-━━━━━━━━━━━━━━━━━━━
-👨‍💻 By: <a>Mahmoud Saad 🥷🏻</a>
-</b>"""
-                        bot.send_message(user_id, msg, parse_mode="HTML")
-                    
-                    elif result['status'] == 'declined':
-                        declined += 1
-                    
-                    elif result['status'] == 'error':
-                        error += 1
+                    bot.send_message(user_id, msg, parse_mode="HTML")
                 
-                # تحديث التقدم
+                elif result['status'] == 'declined':
+                    declined += 1
+                    # لا يتم إرسال رسالة - يظهر فقط في Dashboard
+                
+                elif result['status'] == 'error':
+                    error += 1
+                    # لا يتم إرسال رسالة - يظهر فقط في Dashboard
+                
+                # تحديث التقدم في Dashboard
                 progress = int((checked / total) * 20)
                 progress_bar = f"[{'█' * progress}{'░' * (20 - progress)}] {int((checked / total) * 100)}%"
                 elapsed = time.time() - start_all
@@ -398,9 +360,7 @@ def menu_callback(call):
                 bot.edit_message_text(
                     chat_id=call.message.chat.id,
                     message_id=call.message.message_id,
-                    text=f"""<b>🔥 Gateway: {gate}
-━━━━━━━━━━━━━━━━━━━
-⚡ Checking in progress...
+                    text=f"""<b>⚡ Checking in progress...
 {progress_bar}
 ⏱ ETA: {int(eta)} sec
 🚀 Speed: {round(speed, 2)} cards/sec
@@ -409,8 +369,8 @@ def menu_callback(call):
                     parse_mode="HTML"
                 )
                 
-                # تأخير صغير بين الدفعات
-                time.sleep(0.5)
+                # تأخير بين كل بطاقة (1 ثانية)
+                time.sleep(1)
 
             loop.close()
             
@@ -436,7 +396,6 @@ def menu_callback(call):
 ━━━━━━━━━━━━━━━━━━━
 
 🎉 Thank you for using the bot!
-👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>""",
                 parse_mode="HTML"
             )
@@ -476,9 +435,6 @@ Card|MM|YYYY|CVV
 
 Example:
 5127740080852575|03|2027|825
-
-━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, help_text, parse_mode="HTML")
@@ -488,13 +444,9 @@ def status_message(message):
     status_text = """<b>🟢 Bot Status: ONLINE
 
 ━━━━━━━━━━━━━━━━━━━
-⚡ Gateway: ITS Connect
-🔥 Speed: Ultra Fast (20 cards/batch)
+⚡ Speed: Optimized
 ✅ Accuracy: 99.9%
 🌍 Server: Active
-
-━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, status_text, parse_mode="HTML")
@@ -517,7 +469,6 @@ def handle_text(message):
             text=f"""<b>✅ Card Loaded Successfully!
 ━━━━━━━━━━━━━━━━━━━
 💳 Card: <code>{text[:12]}****{text[-7:]}</code>
-🔥 Gateway: ITS Connect
 ⚡ Status: Ready
 
 Click below to start checking:
@@ -543,8 +494,6 @@ def start_bot_with_retries():
         try:
             print(f"🔄 Connection attempt {attempt + 1} of {MAX_RETRIES}...")
             print("✅ Bot is running successfully!")
-            print(f"👨‍💻 Developer: Mahmoud Saad 🥷🏻")
-            print(f"📢 Channel: https://t.me/FastSpeedtest")
             print("=" * 50)
             bot.polling(none_stop=True)
             break
@@ -558,6 +507,6 @@ def start_bot_with_retries():
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("🚀 Starting ITS Connect Checker Bot...")
+    print("🚀 Starting Card Checker Bot...")
     print("=" * 50)
     start_bot_with_retries()
