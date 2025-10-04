@@ -410,7 +410,7 @@ def menu_callback(call):
                 )
                 
                 # تأخير صغير بين الدفعات
-                await asyncio.sleep(0.5)
+                time.sleep(0.5)
 
             loop.close()
             
