@@ -235,7 +235,7 @@ def start_message(message):
 
 📤 Send your combo file to start checking!
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, welcome_text, parse_mode="HTML")
@@ -348,9 +348,8 @@ def menu_callback(call):
 🏢 Brand: {bin_info['brand']}
 🏦 Bank: {bin_info['bank']}
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
-⏱ Time: {result['execution_time']} sec
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 By: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
                         bot.send_message(user_id, msg, parse_mode="HTML")
                     
@@ -369,7 +368,7 @@ def menu_callback(call):
 🌍 Country: {bin_info['country']} {bin_info['emoji']}
 ⏱ Time: {result['execution_time']} sec
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 By: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 By: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
                         bot.send_message(user_id, msg, parse_mode="HTML")
                     
@@ -437,7 +436,7 @@ def menu_callback(call):
 ━━━━━━━━━━━━━━━━━━━
 
 🎉 Thank you for using the bot!
-👨‍💻 Developer: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>""",
                 parse_mode="HTML"
             )
@@ -479,7 +478,7 @@ Example:
 5127740080852575|03|2027|825
 
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, help_text, parse_mode="HTML")
@@ -495,7 +494,7 @@ def status_message(message):
 🌍 Server: Active
 
 ━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: <a href='https://t.me/FastSpeedtest'>Mahmoud Saad 🥷🏻</a>
+👨‍💻 Developer: <a>Mahmoud Saad 🥷🏻</a>
 </b>"""
     
     bot.send_message(message.chat.id, status_text, parse_mode="HTML")
